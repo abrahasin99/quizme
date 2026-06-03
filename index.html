@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AuraQuiz — AI-Powered Dynamics</title>
+  <meta name="description" content="Generate bespoke quizzes instantly with the power of Gemini AI. Customize topics, difficulty levels, and models.">
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Font Awesome Icons for premium feel -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- CSS Link -->
+  <link rel="stylesheet" href="style.css?v=1.1">
+  
+  <!-- Prevent transition flash of light theme -->
+  <script>
+    (function () {
+      const savedTheme = localStorage.getItem('aura-quiz-theme') || 'dark';
+      document.documentElement.setAttribute('data-theme', savedTheme);
+    })();
+  </script>
+</head>
+<body>
+  <!-- Decorative Background Blobs -->
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+  <div class="blob blob-3"></div>
+
+  <div class="app-container">
+    <!-- Header Section -->
+    <header class="app-header">
+      <div class="logo-area">
+        <div class="logo-icon">
+          <i class="fa-solid fa-brain"></i>
+        </div>
+        <span class="logo-text">Aura<span class="gradient-text">Quiz</span></span>
+      </div>
+      
+      <!-- Theme & Action Bar -->
+      <div class="action-bar">
+        <button id="theme-toggle" class="icon-btn" aria-label="Toggle theme">
+          <i class="fa-solid fa-moon"></i>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Screens Container -->
+    <main class="main-content">
+      
+      <!-- Screen 1: Setup -->
+      <section id="setup-screen" class="screen active">
+        <div class="hero-section">
+          <h1>Ignite Your <span class="gradient-text">Intellect</span></h1>
+          <p class="subtitle">Experience AI-crafted quizzes generated in real-time. Enter your Gemini API key to customize your quiz journey.</p>
+        </div>
+
+        <form id="quiz-setup-form" class="setup-card glass-panel">
+          <!-- API Key Group -->
+          <div class="form-group">
+            <label for="api-key">
+              <span><i class="fa-solid fa-key icon-label"></i>Gemini API Key</span>
+              <a href="https://aistudio.google.com/" target="_blank" rel="noopener" class="helper-link">Get Key <i class="fa-solid fa-arrow-up-right-from-square"></i></a>
+            </label>
+            <div class="input-with-icon">
+              <input type="password" id="api-key" placeholder="Enter your Gemini API key (Leave blank for Demo Mode)" autocomplete="current-password">
+              <button type="button" id="toggle-key-visibility" class="input-action-btn" aria-label="Toggle password visibility">
+                <i class="fa-solid fa-eye"></i>
+              </button>
+            </div>
+            <p class="input-hint">Your API key is only stored in your browser's local storage and used directly to communicate with Gemini.</p>
+          </div>
+
+          <!-- Configuration Row -->
+          <div class="form-row">
+            <!-- Model Choice -->
+            <div class="form-group">
+              <label for="ai-model">
+                <span><i class="fa-solid fa-microchip icon-label"></i>AI Model</span>
+              </label>
+              <select id="ai-model">
+                <option value="gemini-2.5-flash" selected>Gemini 2.5 Flash (Default & Balanced)</option>
+                <option value="gemini-2.0-flash">Gemini 2.0 Flash (Fast Response)</option>
+                <option value="gemini-2.5-pro">Gemini 2.5 Pro (Analytical & Deep)</option>
+              </select>
+            </div>
+
+            <!-- Difficulty Choice -->
+            <div class="form-group">
+              <label for="difficulty">
+                <span><i class="fa-solid fa-gauge-high icon-label"></i>Difficulty</span>
+              </label>
+              <select id="difficulty">
+                <option value="Easy">Easy</option>
+                <option value="Medium" selected>Medium</option>
+                <option value="Hard">Hard</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Topic Input -->
+          <div class="form-group">
+            <label for="quiz-topic">
+              <span><i class="fa-solid fa-lightbulb icon-label"></i>Quiz Topic</span>
+            </label>
+            <input type="text" id="quiz-topic" placeholder="e.g., Quantum Computing, Roman History, JavaScript Promises..." required>
+            
+            <!-- Quick Suggestions -->
+            <div class="suggestions-area">
+              <span class="suggestion-tag">Quantum Physics</span>
+              <span class="suggestion-tag">Ancient Rome</span>
+              <span class="suggestion-tag">JavaScript Functions</span>
+              <span class="suggestion-tag">Culinary Arts</span>
+            </div>
+          </div>
+
+          <!-- Submit Button -->
+          <button type="submit" class="btn btn-primary btn-block" id="start-btn">
+            <span>Generate Quiz</span>
+            <i class="fa-solid fa-wand-magic-sparkles"></i>
+          </button>
+        </form>
+      </section>
+
+      <!-- Screen 2: Loading State -->
+      <section id="loading-screen" class="screen">
+        <div class="loading-container glass-panel">
+          <div class="loader-visual">
+            <div class="ring-pulse"></div>
+            <div class="pulse-core">
+              <i class="fa-solid fa-wand-magic-sparkles"></i>
+            </div>
+          </div>
+          <h2 id="loading-title">Forging Your Quiz</h2>
+          <p id="loading-status" class="subtitle">Querying Gemini to synthesize tailored questions...</p>
+          
+          <div class="loading-bar-outer">
+            <div id="loading-progress" class="loading-bar-inner"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Screen 3: Quiz Screen -->
+      <section id="quiz-screen" class="screen">
+        <!-- Quiz Header Info -->
+        <div class="quiz-header-bar">
+          <div class="quiz-progress-text">
+            Question <span id="current-question-num" class="highlight">1</span> of <span id="total-questions-num">5</span>
+          </div>
+          
+          <!-- Timer Display -->
+          <div class="timer-wrapper">
+            <svg class="timer-svg" width="60" height="60">
+              <circle class="timer-bg" cx="30" cy="30" r="26" />
+              <circle id="timer-progress" class="timer-bar" cx="30" cy="30" r="26" />
+            </svg>
+            <div id="timer-text" class="timer-digital">30</div>
+          </div>
+        </div>
+
+        <!-- Question & Options Block -->
+        <div class="question-container glass-panel">
+          <h2 id="question-text" class="question-title">Loading Question...</h2>
+          
+          <!-- Multiple Choice Choices -->
+          <div class="options-grid" id="options-grid">
+            <!-- Dynamically populated options -->
+          </div>
+        </div>
+
+        <!-- Hint Section -->
+        <div class="hint-container glass-panel">
+          <button type="button" id="hint-toggle-btn" class="hint-header">
+            <span><i class="fa-solid fa-circle-question hint-icon"></i> Need a hint?</span>
+            <i class="fa-solid fa-chevron-down arrow-icon"></i>
+          </button>
+          <div id="hint-content" class="hint-body">
+            <p id="hint-text">Select hint to reveal a guiding clue.</p>
+          </div>
+        </div>
+
+        <!-- Footer / Action Area -->
+        <div class="quiz-action-bar">
+          <button id="next-question-btn" class="btn btn-secondary" disabled>
+            <span>Next Question</span>
+            <i class="fa-solid fa-arrow-right"></i>
+          </button>
+        </div>
+      </section>
+
+      <!-- Screen 4: Results Dashboard -->
+      <section id="results-screen" class="screen">
+        <div class="results-layout">
+          <!-- Main Score Card -->
+          <div class="results-main glass-panel">
+            <div class="celebration-icon" id="result-icon">
+              <i class="fa-solid fa-trophy"></i>
+            </div>
+            <h1 id="result-greeting">Quiz Completed!</h1>
+            <p id="result-topic-display" class="result-topic">Topic: AI History</p>
+            
+            <div class="score-visualization">
+              <div class="gauge-outer">
+                <svg class="gauge-svg" width="160" height="160">
+                  <circle class="gauge-bg" cx="80" cy="80" r="70" />
+                  <circle id="score-gauge-bar" class="gauge-bar" cx="80" cy="80" r="70" />
+                </svg>
+                <div class="gauge-text">
+                  <span id="score-fraction" class="score-number">4/5</span>
+                  <span id="score-percentage" class="score-percent">80%</span>
+                </div>
+              </div>
+            </div>
+
+            <p id="result-feedback" class="result-feedback-text">Excellent job! You have a solid grasp of the subject.</p>
+            
+            <div class="action-buttons-group">
+              <button id="restart-quiz-btn" class="btn btn-primary">
+                <span>Try Another Topic</span>
+                <i class="fa-solid fa-rotate-left"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Review Breakdown -->
+          <div class="results-breakdown glass-panel">
+            <h2>Detailed Review</h2>
+            <div class="review-list" id="review-list">
+              <!-- Dynamically populated review questions -->
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+    
+    <!-- Footer Branding -->
+    <footer class="app-footer">
+      <p>Powered by Google Gemini AI. Handcrafted with modern vanilla components.</p>
+    </footer>
+  </div>
+
+  <!-- Universal Toast Notification Area -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <!-- Error Modal Overlay -->
+  <div id="error-modal" class="modal-overlay">
+    <div class="modal-content glass-panel animated scale-in">
+      <div class="modal-header">
+        <div class="error-badge">
+          <i class="fa-solid fa-triangle-exclamation"></i>
+        </div>
+        <h3>Generation Error</h3>
+      </div>
+      <div class="modal-body">
+        <p id="error-message">An unexpected error occurred during quiz generation.</p>
+        <details id="error-details-container" class="error-details">
+          <summary>Technical Details</summary>
+          <pre id="error-technical-log"></pre>
+        </details>
+      </div>
+      <div class="modal-footer" style="display: flex; flex-direction: column; gap: 10px;">
+        <button type="button" id="play-demo-btn" class="btn btn-primary btn-block">Play Offline Demo Mode</button>
+        <button type="button" id="close-error-btn" class="btn btn-secondary btn-block">Dismiss</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- JS Script -->
+  <script src="app.js?v=1.1"></script>
+</body>
+</html>
