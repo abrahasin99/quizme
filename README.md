@@ -52,9 +52,23 @@ Choose a topic and difficulty, answer AI-generated questions, use hints when nee
 
 ---
 
+
 ## 📸 Screenshots
 
-<!-- Add your screenshots here -->
+### Quiz Interface
+
+<p align="center">
+  <img src="./quiz1.png" alt="QuizMe Quiz Interface" width="90%">
+</p>
+
+---
+
+### Quiz Results
+
+<p align="center">
+  <img src="./quiz2.png" alt="QuizMe Quiz Results" width="90%">
+</p>
+
 
 ---
 
